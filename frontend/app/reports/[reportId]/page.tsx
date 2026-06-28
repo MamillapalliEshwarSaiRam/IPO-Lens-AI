@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, Building2, ExternalLink, Landmark } from "lucide-react";
 
 import { EvidenceTable } from "@/components/evidence-table";
 import { ReportCard } from "@/components/report-card";
@@ -40,6 +40,30 @@ export default function ReportPage({ params }: { params: { reportId: string } })
 
   const { report, company, claims, sources } = detail;
   const breakdown = report.score_breakdown as Record<string, unknown>;
+  const marketStatus = company.is_public
+    ? {
+        icon: Landmark,
+        eyebrow: "Market status",
+        label: `Publicly traded${company.ticker ? ` · ${company.ticker}` : ""}`,
+        description: "This company appears to already be trading on the public market.",
+        detail: company.cik ? `SEC identity available under CIK ${company.cik}.` : "Trading status confirmed from available evidence.",
+        className: "border-mint/30 bg-[linear-gradient(135deg,rgba(15,118,110,0.14),rgba(255,255,255,0.94))] text-emerald-950",
+        iconClassName: "border-mint/30 bg-white/75 text-mint",
+        pillClassName: "bg-mint text-white",
+      }
+    : {
+        icon: Building2,
+        eyebrow: "Market status",
+        label: "Not publicly traded",
+        description: "This company is not currently being traded publicly based on the available evidence.",
+        detail: company.cik
+          ? `A public-market ticker was not confirmed${company.cik ? ` for CIK ${company.cik}` : ""}.`
+          : "No confirmed public-market ticker was found from the current identity checks.",
+        className: "border-zinc-300 bg-[linear-gradient(135deg,rgba(244,244,245,0.98),rgba(228,228,231,0.8))] text-zinc-900",
+        iconClassName: "border-zinc-300 bg-white/80 text-zinc-700",
+        pillClassName: "bg-zinc-900 text-white",
+      };
+  const MarketStatusIcon = marketStatus.icon;
 
   return (
     <div className="space-y-6">
@@ -62,6 +86,26 @@ export default function ReportPage({ params }: { params: { reportId: string } })
           <p className="text-sm font-semibold uppercase tracking-normal text-signal">IPO readiness report</p>
           <h1 className="mt-2 text-3xl font-semibold tracking-normal text-ink">{company.name}</h1>
           <p className="mt-3 max-w-4xl text-sm leading-6 text-graphite">{report.executive_summary}</p>
+          <div className={`mt-4 rounded-lg border p-4 shadow-sm ${marketStatus.className}`}>
+            <div className="flex items-start gap-4">
+              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border ${marketStatus.iconClassName}`}>
+                <MarketStatusIcon className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.08em] opacity-70">
+                    {marketStatus.eyebrow}
+                  </span>
+                  <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] ${marketStatus.pillClassName}`}>
+                    {company.is_public ? "Live ticker" : "Private status"}
+                  </span>
+                </div>
+                <div className="mt-2 text-base font-semibold">{marketStatus.label}</div>
+                <p className="mt-1 text-sm leading-6 opacity-90">{marketStatus.description}</p>
+                <p className="mt-2 text-xs font-medium opacity-75">{marketStatus.detail}</p>
+              </div>
+            </div>
+          </div>
           <div className="mt-4 flex flex-wrap gap-3 text-sm text-graphite">
             {company.sector && <span>Sector: {company.sector}</span>}
             {company.website && (
@@ -70,7 +114,7 @@ export default function ReportPage({ params }: { params: { reportId: string } })
                 <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
               </a>
             )}
-            <span>{company.is_public ? `Public${company.ticker ? ` · ${company.ticker}` : ""}` : "Private company"}</span>
+            <span>{company.is_public ? "Public company" : "Private company"}</span>
           </div>
         </div>
       </section>
@@ -199,4 +243,3 @@ function SectionList({ values, empty }: { values: string[]; empty?: string }) {
     </ul>
   );
 }
-
