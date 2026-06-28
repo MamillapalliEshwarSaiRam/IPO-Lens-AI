@@ -1,0 +1,30 @@
+.env
+.env.local
+.DS_Store
+.local/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+*.db
+*.sqlite
+
+# Node
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+
+# Build artifacts
+dist/
+coverage/
+.coverage
+*.egg-info/
